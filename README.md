@@ -38,7 +38,7 @@ Gomail supports:
 
 ## Documentation
 
-https://godoc.org/github.com/imsingee/go-mail
+https://godoc.org/github.com/imsingee/gomail
 
 
 ## Download
@@ -46,12 +46,12 @@ https://godoc.org/github.com/imsingee/go-mail
 Simple use `go get`
 
 ```
-go get github.com/ImSingee/go-mail
+go get github.com/ImSingee/gomail
 ```
 
 ## Examples
 
-See the [examples in the documentation](http://godoc.org/github.com/imsingee/go-mail#example-package).
+See the [examples in the documentation](http://godoc.org/github.com/imsingee/gomail#example-package).
 
 
 ## FAQ
