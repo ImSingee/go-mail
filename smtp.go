@@ -1,4 +1,4 @@
-package mail
+package gomail
 
 import (
 	"crypto/tls"
@@ -94,7 +94,7 @@ func (d *Dialer) Dial() (SendCloser, error) {
 	}
 
 	if d.Timeout > 0 {
-		conn.SetDeadline(time.Now().Add(d.Timeout))
+		_ = conn.SetDeadline(time.Now().Add(d.Timeout))
 	}
 
 	if d.LocalName != "" {
@@ -113,7 +113,7 @@ func (d *Dialer) Dial() (SendCloser, error) {
 
 		if ok {
 			if err := c.StartTLS(d.tlsConfig()); err != nil {
-				c.Close()
+				_ = c.Close()
 				return nil, err
 			}
 		}
@@ -138,7 +138,7 @@ func (d *Dialer) Dial() (SendCloser, error) {
 
 	if d.Auth != nil {
 		if err = c.Auth(d.Auth); err != nil {
-			c.Close()
+			_ = c.Close()
 			return nil, err
 		}
 	}
@@ -230,7 +230,7 @@ func (c *smtpSender) retryError(err error) bool {
 
 func (c *smtpSender) Send(from string, to []string, msg io.WriterTo) error {
 	if c.d.Timeout > 0 {
-		c.conn.SetDeadline(time.Now().Add(c.d.Timeout))
+		_ = c.conn.SetDeadline(time.Now().Add(c.d.Timeout))
 	}
 
 	if err := c.Mail(from); err != nil {
@@ -260,7 +260,7 @@ func (c *smtpSender) Send(from string, to []string, msg io.WriterTo) error {
 	}
 
 	if _, err = msg.WriteTo(w); err != nil {
-		w.Close()
+		_ = w.Close()
 		return err
 	}
 

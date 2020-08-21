@@ -1,4 +1,4 @@
-package mail_test
+package gomail
 
 import (
 	"fmt"
@@ -6,12 +6,10 @@ import (
 	"io"
 	"log"
 	"time"
-
-	"gopkg.in/mail.v2"
 )
 
 func Example() {
-	m := mail.NewMessage()
+	m := NewMessage()
 	m.SetHeader("From", "alex@example.com")
 	m.SetHeader("To", "bob@example.com", "cora@example.com")
 	m.SetAddressHeader("Cc", "dan@example.com", "Dan")
@@ -19,8 +17,8 @@ func Example() {
 	m.SetBody("text/html", "Hello <b>Bob</b> and <i>Cora</i>!")
 	m.Attach("/home/Alex/lolcat.jpg")
 
-	d := mail.NewDialer("smtp.example.com", 587, "user", "123456")
-	d.StartTLSPolicy = mail.MandatoryStartTLS
+	d := NewDialer("smtp.example.com", 587, "user", "123456")
+	d.StartTLSPolicy = MandatoryStartTLS
 
 	// Send the email to Bob, Cora and Dan.
 	if err := d.DialAndSend(m); err != nil {
@@ -30,13 +28,13 @@ func Example() {
 
 // A daemon that listens to a channel and sends all incoming messages.
 func Example_daemon() {
-	ch := make(chan *mail.Message)
+	ch := make(chan *Message)
 
 	go func() {
-		d := mail.NewDialer("smtp.example.com", 587, "user", "123456")
-		d.StartTLSPolicy = mail.MandatoryStartTLS
+		d := NewDialer("smtp.example.com", 587, "user", "123456")
+		d.StartTLSPolicy = MandatoryStartTLS
 
-		var s mail.SendCloser
+		var s SendCloser
 		var err error
 		open := false
 		for {
@@ -51,7 +49,7 @@ func Example_daemon() {
 					}
 					open = true
 				}
-				if err := mail.Send(s, m); err != nil {
+				if err := Send(s, m); err != nil {
 					log.Print(err)
 				}
 			// Close the connection to the SMTP server if no email was sent in
@@ -76,26 +74,26 @@ func Example_daemon() {
 // Efficiently send a customized newsletter to a list of recipients.
 func Example_newsletter() {
 	// The list of recipients.
-	var list []struct {
+	list := make([]struct {
 		Name    string
 		Address string
-	}
+	}, 0)
 
-	d := mail.NewDialer("smtp.example.com", 587, "user", "123456")
-	d.StartTLSPolicy = mail.MandatoryStartTLS
+	d := NewDialer("smtp.example.com", 587, "user", "123456")
+	d.StartTLSPolicy = MandatoryStartTLS
 	s, err := d.Dial()
 	if err != nil {
 		panic(err)
 	}
 
-	m := mail.NewMessage()
+	m := NewMessage()
 	for _, r := range list {
 		m.SetHeader("From", "no-reply@example.com")
 		m.SetAddressHeader("To", r.Address, r.Name)
 		m.SetHeader("Subject", "Newsletter #1")
 		m.SetBody("text/html", fmt.Sprintf("Hello %s!", r.Name))
 
-		if err := mail.Send(s, m); err != nil {
+		if err := Send(s, m); err != nil {
 			log.Printf("Could not send email to %q: %v", r.Address, err)
 		}
 		m.Reset()
@@ -104,13 +102,13 @@ func Example_newsletter() {
 
 // Send an email using a local SMTP server.
 func Example_noAuth() {
-	m := mail.NewMessage()
+	m := NewMessage()
 	m.SetHeader("From", "from@example.com")
 	m.SetHeader("To", "to@example.com")
 	m.SetHeader("Subject", "Hello!")
 	m.SetBody("text/plain", "Hello!")
 
-	d := mail.Dialer{Host: "localhost", Port: 587}
+	d := Dialer{Host: "localhost", Port: 587}
 	if err := d.DialAndSend(m); err != nil {
 		panic(err)
 	}
@@ -118,13 +116,13 @@ func Example_noAuth() {
 
 // Send an email using an API or postfix.
 func Example_noSMTP() {
-	m := mail.NewMessage()
+	m := NewMessage()
 	m.SetHeader("From", "from@example.com")
 	m.SetHeader("To", "to@example.com")
 	m.SetHeader("Subject", "Hello!")
 	m.SetBody("text/plain", "Hello!")
 
-	s := mail.SendFunc(func(from string, to []string, msg io.WriterTo) error {
+	s := SendFunc(func(from string, to []string, msg io.WriterTo) error {
 		// Implements you email-sending function, for example by calling
 		// an API, or running postfix, etc.
 		fmt.Println("From:", from)
@@ -132,7 +130,7 @@ func Example_noSMTP() {
 		return nil
 	})
 
-	if err := mail.Send(s, m); err != nil {
+	if err := Send(s, m); err != nil {
 		panic(err)
 	}
 	// Output:
@@ -140,10 +138,10 @@ func Example_noSMTP() {
 	// To: [to@example.com]
 }
 
-var m *mail.Message
+var m *Message
 
 func ExampleSetCopyFunc() {
-	m.Attach("foo.txt", mail.SetCopyFunc(func(w io.Writer) error {
+	m.Attach("foo.txt", SetCopyFunc(func(w io.Writer) error {
 		_, err := w.Write([]byte("Content of foo.txt"))
 		return err
 	}))
@@ -151,11 +149,11 @@ func ExampleSetCopyFunc() {
 
 func ExampleSetHeader() {
 	h := map[string][]string{"Content-ID": {"<foo@bar.mail>"}}
-	m.Attach("foo.jpg", mail.SetHeader(h))
+	m.Attach("foo.jpg", SetHeader(h))
 }
 
 func ExampleRename() {
-	m.Attach("/tmp/0000146.jpg", mail.Rename("picture.jpg"))
+	m.Attach("/tmp/0000146.jpg", Rename("picture.jpg"))
 }
 
 func ExampleMessage_AddAlternative() {
@@ -221,13 +219,13 @@ func ExampleMessage_SetHeaders() {
 }
 
 func ExampleSetCharset() {
-	m = mail.NewMessage(mail.SetCharset("ISO-8859-1"))
+	m = NewMessage(SetCharset("ISO-8859-1"))
 }
 
 func ExampleSetEncoding() {
-	m = mail.NewMessage(mail.SetEncoding(mail.Base64))
+	m = NewMessage(SetEncoding(Base64))
 }
 
 func ExampleSetPartEncoding() {
-	m.SetBody("text/plain", "Hello!", mail.SetPartEncoding(mail.Unencoded))
+	m.SetBody("text/plain", "Hello!", SetPartEncoding(Unencoded))
 }

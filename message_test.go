@@ -1,4 +1,4 @@
-package mail
+package gomail
 
 import (
 	"bytes"
@@ -402,7 +402,7 @@ func TestAttachmentsOnly(t *testing.T) {
 			"\r\n" +
 			base64.StdEncoding.EncodeToString([]byte("Content of test.pdf")) + "\r\n" +
 			"--_BOUNDARY_1_\r\n" +
-			"Content-Type: application/zip; name=\"test.zip\"\r\n" +
+			"Content-Type: application/x-zip-compressed; name=\"test.zip\"\r\n" +
 			"Content-Disposition: attachment; filename=\"test.zip\"\r\n" +
 			"Content-Transfer-Encoding: base64\r\n" +
 			"\r\n" +
@@ -441,7 +441,7 @@ func TestAttachments(t *testing.T) {
 			"\r\n" +
 			base64.StdEncoding.EncodeToString([]byte("Content of test.pdf")) + "\r\n" +
 			"--_BOUNDARY_1_\r\n" +
-			"Content-Type: application/zip; name=\"test.zip\"\r\n" +
+			"Content-Type: application/x-zip-compressed; name=\"test.zip\"\r\n" +
 			"Content-Disposition: attachment; filename=\"test.zip\"\r\n" +
 			"Content-Transfer-Encoding: base64\r\n" +
 			"\r\n" +

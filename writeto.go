@@ -1,4 +1,4 @@
-package mail
+package gomail
 
 import (
 	"encoding/base64"
@@ -80,7 +80,7 @@ type messageWriter struct {
 func (w *messageWriter) openMultipart(mimeType, boundary string) {
 	mw := multipart.NewWriter(w)
 	if boundary != "" {
-		mw.SetBoundary(boundary)
+		_ = mw.SetBoundary(boundary)
 	}
 	contentType := "multipart/" + mimeType + ";\r\n boundary=" + mw.Boundary()
 	w.writers[w.depth] = mw
@@ -102,7 +102,7 @@ func (w *messageWriter) createPart(h map[string][]string) {
 
 func (w *messageWriter) closeMultipart() {
 	if w.depth > 0 {
-		w.writers[w.depth-1].Close()
+		_ = w.writers[w.depth-1].Close()
 		w.depth--
 	}
 }
@@ -269,13 +269,13 @@ func (w *messageWriter) writeBody(f func(io.Writer) error, enc Encoding) {
 	if enc == Base64 {
 		wc := base64.NewEncoder(base64.StdEncoding, newBase64LineWriter(subWriter))
 		w.err = f(wc)
-		wc.Close()
+		_ = wc.Close()
 	} else if enc == Unencoded {
 		w.err = f(subWriter)
 	} else {
 		wc := newQPWriter(subWriter)
 		w.err = f(wc)
-		wc.Close()
+		_ = wc.Close()
 	}
 }
 
@@ -296,14 +296,14 @@ func newBase64LineWriter(w io.Writer) *base64LineWriter {
 func (w *base64LineWriter) Write(p []byte) (int, error) {
 	n := 0
 	for len(p)+w.lineLen > maxLineLen {
-		w.w.Write(p[:maxLineLen-w.lineLen])
-		w.w.Write([]byte("\r\n"))
+		_, _ = w.w.Write(p[:maxLineLen-w.lineLen])
+		_, _ = w.w.Write([]byte("\r\n"))
 		p = p[maxLineLen-w.lineLen:]
 		n += maxLineLen - w.lineLen
 		w.lineLen = 0
 	}
 
-	w.w.Write(p)
+	_, _ = w.w.Write(p)
 	w.lineLen += len(p)
 
 	return n + len(p), nil

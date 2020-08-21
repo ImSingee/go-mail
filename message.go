@@ -1,4 +1,4 @@
-package mail
+package gomail
 
 import (
 	"bytes"
@@ -325,7 +325,7 @@ func fileFromFilename(name string) *file {
 				return err
 			}
 			if _, err := io.Copy(w, h); err != nil {
-				h.Close()
+				_ = h.Close()
 				return err
 			}
 			return h.Close()
