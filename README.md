@@ -69,7 +69,7 @@ package main
 import (
 	"crypto/tls"
 
-	"gomail"
+	"github.com/ImSingee/gomail"
 )
 
 func main() {
@@ -88,7 +88,7 @@ If you're already using the original Gomail, switching is as easy as updating
 the import line to:
 
 ```
-import gomail "gopkg.in/mail.v2"
+import "github.com/ImSingee/gomail"
 ```
 
 ## Contribute
